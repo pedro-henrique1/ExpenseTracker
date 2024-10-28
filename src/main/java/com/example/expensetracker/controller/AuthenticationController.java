@@ -7,13 +7,10 @@ import com.example.expensetracker.responses.LoginResponse;
 import com.example.expensetracker.services.AuthenticationService;
 import com.example.expensetracker.services.JwtService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/auth")
 @RestController
+@RequestMapping("/v1/auth")
 public class AuthenticationController {
     private final JwtService jwtService;
 
@@ -24,7 +21,7 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping("/signup")
+    @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
 
@@ -40,5 +37,10 @@ public class AuthenticationController {
         loginResponse.setToken(jwtToken);
         loginResponse.setExpiresIn(jwtService.getExpirationTime());
         return ResponseEntity.ok(loginResponse);
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("Rota encontrada!");
     }
 }
