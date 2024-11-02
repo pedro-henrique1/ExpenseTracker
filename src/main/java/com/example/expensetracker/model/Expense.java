@@ -3,10 +3,7 @@ package com.example.expensetracker.model;
 
 import com.example.expensetracker.dtos.ExpenseDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -17,6 +14,7 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
+@ToString
 public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

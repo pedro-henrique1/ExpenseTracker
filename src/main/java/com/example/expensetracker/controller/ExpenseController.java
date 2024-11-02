@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/expanse")
 @PreAuthorize("hasAnyRole('expanse')")
@@ -32,12 +35,23 @@ public class ExpenseController {
     public ResponseEntity<String> addExpense(@RequestBody ExpenseDto expenseDto) {
         try {
             Expense expense = Expense.fromDto(expenseDto);
-
             expenseService.saveExpense(expense);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Expense added successfully." + expenseDto);
+            System.out.println(expense);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Expense added successfully." + expense.toString());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding expense: " + e.getMessage());
         }
+    }
+
+
+    @GetMapping("/all")
+    public ResponseEntity<? extends List<?>> getAllExpenses() {
+        List<?> expenses = expenseService.getAllExpenses();
+
+        return Optional.of(expenses)
+                .filter(list -> !list.isEmpty())
+                .map(list -> ResponseEntity.status(HttpStatus.OK).body(list))
+                .orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).body(null));
 
     }
 }

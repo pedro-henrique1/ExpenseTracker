@@ -7,6 +7,10 @@ import com.example.expensetracker.repositories.ExpenseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class ExpenseService {
     @Autowired
@@ -23,5 +27,12 @@ public class ExpenseService {
     public void saveExpense(Expense expense) {
         System.out.println(expense.getPaymentMethod());
         expenseRepository.save(expense);
+    }
+
+    public List<?> getAllExpenses() {
+        List<Expense> expenses = expenseRepository.findAll();
+        return expenses.stream()
+                .map(expenseMapper::toDto) // Converte cada Expense em ExpenseDto
+                .collect(Collectors.toList());
     }
 }
