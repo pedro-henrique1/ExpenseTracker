@@ -15,7 +15,7 @@ public class ExpenseDto {
     private String description;
     private BigDecimal price;
     private Date date;
-    private MetodoPagamento payment_method;
+    private MetodoPagamento paymentMethod;
     private Categoria category;
     private String observation;
 }

@@ -20,8 +20,8 @@ public class ExpenseService {
         return expenseMapper.toDto(expense);
     }
 
-    public void saveExpense(ExpenseDto expenseDto) {
-        Expense expense = expenseMapper.fromDto(expenseDto);
+    public void saveExpense(Expense expense) {
+        System.out.println(expense.getPaymentMethod());
         expenseRepository.save(expense);
     }
 }

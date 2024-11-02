@@ -3,6 +3,7 @@ package com.example.expensetracker.controller;
 
 import com.example.expensetracker.dtos.ExpenseDto;
 import com.example.expensetracker.model.Expense;
+import com.example.expensetracker.model.MetodoPagamento;
 import com.example.expensetracker.repositories.ExpenseRepository;
 import com.example.expensetracker.services.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +31,11 @@ public class ExpenseController {
     @PostMapping("/create")
     public ResponseEntity<String> addExpense(@RequestBody ExpenseDto expenseDto) {
         try {
-            // Você pode adicionar validações adicionais aqui
-            if (expenseDto == null) {
-                return ResponseEntity.badRequest().body("Expense data is missing.");
-            }
+            Expense expense = Expense.fromDto(expenseDto);
 
-            // Converte ExpenseDto em Expense e salva no banco
-            expenseService.saveExpense(expenseDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Expense added successfully.");
+            expenseService.saveExpense(expense);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Expense added successfully." + expenseDto);
         } catch (Exception e) {
-            // Tratar exceções e retornar um erro
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding expense: " + e.getMessage());
         }
 

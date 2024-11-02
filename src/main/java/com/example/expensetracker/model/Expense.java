@@ -17,7 +17,6 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
-
 public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,9 +33,11 @@ public class Expense {
     private Date date;
 
     @Enumerated(EnumType.STRING)
-    private MetodoPagamento payment_method;
+    @Column(name = "payment_method", columnDefinition = "ENUM('Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'Transferência Bancária', 'Pix', 'Boleto', 'Aplicativos de Pagamento', 'Cheque', 'Cartão de Benefícios')")
+    private MetodoPagamento paymentMethod;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "category", columnDefinition = "ENUM ('Alimentação', 'Transporte', 'Lazer', 'Saúde', 'Moradia','Educação', 'Outros')")
     private Categoria category;
 
     private String observation;
@@ -56,9 +57,10 @@ public class Expense {
         expense.setDescription(dto.getDescription());
         expense.setPrice(dto.getPrice());
         expense.setDate(dto.getDate());
-        expense.setPayment_method(dto.getPayment_method());
+        expense.setPaymentMethod(dto.getPaymentMethod()); // Converte o ENUM
         expense.setCategory(dto.getCategory());
         expense.setObservation(dto.getObservation());
+
         return expense;
     }
 
@@ -69,7 +71,7 @@ public class Expense {
         dto.setDescription(expense.getDescription());
         dto.setPrice(expense.getPrice());
         dto.setDate(expense.getDate());
-        dto.setPayment_method(expense.getPayment_method()); // Corrigido aqui
+        dto.setPaymentMethod(expense.getPaymentMethod()); // Corrigido aqui
         dto.setCategory(expense.getCategory());
         dto.setObservation(expense.getObservation());
         return dto;
