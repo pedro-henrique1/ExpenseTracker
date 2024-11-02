@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,7 @@ public class ExpenseService {
 
     public ExpenseDto getExpense(Long id) {
         Expense expense = expenseRepository.findById(id).orElse(null);
+
         return expenseMapper.toDto(expense);
     }
 
@@ -35,4 +37,22 @@ public class ExpenseService {
                 .map(expenseMapper::toDto) // Converte cada Expense em ExpenseDto
                 .collect(Collectors.toList());
     }
+
+    public void deleteExpense(Long id) {
+        expenseRepository.deleteById(id);
+    }
+
+    public List<Expense> getExpenseForDateRange(Date startDate, Date endDate) {
+        return expenseRepository.findAllByDateBetween(startDate, endDate);
+    }
+
+    public List<Expense> getExpenseForDate(Date date) {
+        return expenseRepository.findAllByDate(date);
+    }
+
+    public List<Expense> getExpensesLastThreeMonths() {
+        return expenseRepository.findAllExpensesLastThreeMonths();
+    }
+
+
 }
