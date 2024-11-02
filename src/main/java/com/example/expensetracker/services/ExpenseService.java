@@ -7,6 +7,8 @@ import com.example.expensetracker.repositories.ExpenseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +36,7 @@ public class ExpenseService {
     public List<?> getAllExpenses() {
         List<Expense> expenses = expenseRepository.findAll();
         return expenses.stream()
-                .map(expenseMapper::toDto) // Converte cada Expense em ExpenseDto
+                .map(expenseMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -51,7 +53,9 @@ public class ExpenseService {
     }
 
     public List<Expense> getExpensesLastThreeMonths() {
-        return expenseRepository.findAllExpensesLastThreeMonths();
+        LocalDate threeMonthsAgoLocalDate = LocalDate.now().minusMonths(3);
+        Date threeMonthsAgo = Date.from(threeMonthsAgoLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        return expenseRepository.findAllExpensesLastThreeMonths(threeMonthsAgo);
     }
 
 
