@@ -28,7 +28,7 @@ public enum Categoria {
     @JsonCreator
     public static Categoria fromValue(String value) {
         for (Categoria categoria : Categoria.values()) {
-            if (categoria.valor.equalsIgnoreCase(value)) {
+            if (categoria.valor.equalsIgnoreCase(value) || categoria.name().equalsIgnoreCase(value)) {
                 return categoria;
             }
         }

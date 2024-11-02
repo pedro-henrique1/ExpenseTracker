@@ -31,7 +31,7 @@ public enum MetodoPagamento {
     @JsonCreator
     public static MetodoPagamento fromValue(String value) {
         for (MetodoPagamento metodo : MetodoPagamento.values()) {
-            if (metodo.valor.equalsIgnoreCase(value)) {
+            if (metodo.valor.equalsIgnoreCase(value) || metodo.name().equalsIgnoreCase(value)) {
                 return metodo;
             }
         }
