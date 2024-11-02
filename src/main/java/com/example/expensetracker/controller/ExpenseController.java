@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/expanse")
+@RequestMapping("/v1/expanse")
 @PreAuthorize("hasAnyRole('expanse')")
 public class ExpenseController {
 
@@ -55,7 +55,7 @@ public class ExpenseController {
                 .orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).body(null));
     }
 
-    @PatchMapping("${id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<ExpenseDto> getExpenseById(@PathVariable Long id, @RequestBody ExpenseDto expenseDto) {
         ExpenseDto result = expenseService.getExpense(id);
 
@@ -68,7 +68,7 @@ public class ExpenseController {
 
     }
 
-    @DeleteMapping("${id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteExpenseById(@PathVariable Long id) {
         expenseService.deleteExpense(id);
         return ResponseEntity.status(HttpStatus.OK).body("Expense deleted successfully." + id);
