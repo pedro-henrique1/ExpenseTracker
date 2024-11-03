@@ -13,12 +13,9 @@ import java.util.List;
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Expense> findByUser(User user);
 
-//    List<Expense> findAllByDateBetween(Date startDate, Date endDate, User user);
 
-    List<Expense> findAllByDateAndUser(Date date, User user);
-
-    @Query("SELECT e FROM Expense e WHERE e.date >= :threeMonthsAgo AND e.user = :user")
-    List<Expense> findAllExpensesLastThreeMonths(@Param("threeMonthsAgo") Date threeMonthsAgo, @Param("user") User user);
+    @Query("SELECT e FROM Expense e WHERE e.date >= :date AND e.user = :user")
+    List<Expense> findByDateAfterAndUser(@Param("date") Date date, @Param("user") User user);
 
     @Query("SELECT e FROM Expense e WHERE e.date = :date AND e.user = :user")
     List<Expense> findByDateAndUser(@Param("date") java.sql.Date date, @Param("user") User user);

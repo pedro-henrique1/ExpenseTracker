@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,8 +61,9 @@ public class ExpenseService {
         expenseRepository.delete(expense);
     }
 
-    public List<Expense> getExpenseForDateRange(Date startDate, Date endDate, User user) {
-        return expenseRepository.findAllByDateBetween(startDate, endDate);
+    public List<ExpenseDto> getExpenseForDateRange(Date startDate, Date endDate, User user) {
+        List<Expense> expenses =  expenseRepository.findAllByDateBetween(startDate, endDate);
+        return expenses.stream().map(Expense::toDto).collect(Collectors.toList());
     }
 
     public List<ExpenseDto> getExpenseForDate(java.sql.Date date, User user) {
@@ -70,9 +72,10 @@ public class ExpenseService {
     }
 
     public List<Expense> getExpensesLastThreeMonths(User user) {
-        LocalDate threeMonthsAgoLocalDate = LocalDate.now().minusMonths(3);
-        Date threeMonthsAgo = Date.from(threeMonthsAgoLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        return expenseRepository.findAllExpensesLastThreeMonths(threeMonthsAgo, user);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, -3);
+        java.sql.Date threeMonthsAgo = new java.sql.Date(calendar.getTimeInMillis());
+        return expenseRepository.findByDateAfterAndUser(threeMonthsAgo, user);
     }
 
 

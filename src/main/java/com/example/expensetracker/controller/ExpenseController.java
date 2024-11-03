@@ -3,28 +3,19 @@ package com.example.expensetracker.controller;
 
 import com.example.expensetracker.dtos.ExpenseDto;
 import com.example.expensetracker.model.Expense;
-import com.example.expensetracker.model.MetodoPagamento;
 import com.example.expensetracker.model.User;
-import com.example.expensetracker.repositories.ExpenseRepository;
 import com.example.expensetracker.services.ExpenseService;
 import com.example.expensetracker.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/expanse")
@@ -59,7 +50,6 @@ public class ExpenseController {
     public ResponseEntity<? extends List<?>> getAllExpenses() {
         User user = SecurityUtils.getAuthenticatedUser();
         List<?> expenses = expenseService.getAllExpenses(user);
-
         return Optional.of(expenses).filter(list -> !list.isEmpty()).map(list -> ResponseEntity.status(HttpStatus.OK).body(list)).orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).body(null));
     }
 
@@ -67,7 +57,6 @@ public class ExpenseController {
     public ResponseEntity<ExpenseDto> getExpenseById(@PathVariable Long id, @RequestBody ExpenseDto expenseDto) {
         User user = SecurityUtils.getAuthenticatedUser();
         ExpenseDto result = expenseService.getExpense(id, user);
-
         result.setCategory(expenseDto.getCategory());
         result.setDescription(expenseDto.getDescription());
         result.setPrice(expenseDto.getPrice());
@@ -84,33 +73,26 @@ public class ExpenseController {
     }
 
     @GetMapping("/between")
-    public ResponseEntity<List<Expense>> getExpensesBetween(@RequestParam Date startDate, @RequestParam Date endDate) {
+    public ResponseEntity<List<ExpenseDto>> getExpensesBetween(@RequestParam String startDate, @RequestParam String endDate) {
         User user = SecurityUtils.getAuthenticatedUser();
-        List<Expense> expenses = expenseService.getExpenseForDateRange(startDate, endDate, user);
-        return ResponseEntity.ok(expenses);
+        List<ExpenseDto> expenses = expenseService.getExpenseForDateRange(Date.valueOf(startDate), Date.valueOf(endDate), user);
+        return expenses.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) : ResponseEntity.ok(expenses);
+
     }
 
     @GetMapping("/date")
-    public ResponseEntity<List<ExpenseDto>> getExpensesByDate(@RequestParam("date") String date) throws ParseException {
+    public ResponseEntity<List<ExpenseDto>> getExpensesByDate(@RequestParam("date") String date) {
         User user = SecurityUtils.getAuthenticatedUser();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate localDate;
-        try {
-            localDate = LocalDate.parse(date, formatter);
-        } catch (DateTimeParseException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
         assert user != null;
-        List<ExpenseDto> expenses = expenseService.getExpenseForDate(java.sql.Date.valueOf(localDate), user);
+        List<ExpenseDto> expenses = expenseService.getExpenseForDate(java.sql.Date.valueOf(date), user);
         return expenses.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) : ResponseEntity.ok(expenses);
     }
 
     @GetMapping("/last-three-months")
-    public ResponseEntity<List<Expense>> getExpensesLastThreeMonths() {
+    public ResponseEntity<List<ExpenseDto>> getExpensesLastThreeMonths() {
         User user = SecurityUtils.getAuthenticatedUser();
-        List<Expense> expenses = expenseService.getExpensesLastThreeMonths(user);
-        return ResponseEntity.ok(expenses);
+        List<ExpenseDto> expenses = expenseService.getExpensesLastThreeMonths(user).stream().map(Expense::toDto).collect(Collectors.toList());
+        return expenses.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) : ResponseEntity.ok(expenses);
     }
 
 }
