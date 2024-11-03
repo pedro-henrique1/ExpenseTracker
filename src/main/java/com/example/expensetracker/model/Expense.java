@@ -28,7 +28,7 @@ public class Expense {
     private BigDecimal price;
 
     @Column(nullable = false)
-    private Date date;
+    private java.sql.Date date;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", columnDefinition = "ENUM('Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'Transferência Bancária', 'Pix', 'Boleto', 'Aplicativos de Pagamento', 'Cheque', 'Cartão de Benefícios')")
@@ -48,10 +48,13 @@ public class Expense {
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     // Método de conversão de DTO para entidade
     public static Expense fromDto(ExpenseDto dto) {
         Expense expense = new Expense();
-        expense.setId(dto.getId());
         expense.setDescription(dto.getDescription());
         expense.setPrice(dto.getPrice());
         expense.setDate(dto.getDate());
@@ -65,7 +68,6 @@ public class Expense {
     // Método de conversão de entidade para DTO
     public static ExpenseDto toDto(Expense expense) {
         ExpenseDto dto = new ExpenseDto();
-        dto.setId(expense.getId());
         dto.setDescription(expense.getDescription());
         dto.setPrice(expense.getPrice());
         dto.setDate(expense.getDate());
