@@ -3,13 +3,15 @@ package com.example.expensetracker.services;
 import com.example.expensetracker.dtos.ExpenseDto;
 import com.example.expensetracker.mapper.ExpenseMapper;
 import com.example.expensetracker.model.Expense;
+import com.example.expensetracker.model.User;
 import com.example.expensetracker.repositories.ExpenseRepository;
+import com.example.expensetracker.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,40 +24,55 @@ public class ExpenseService {
     @Autowired
     private ExpenseRepository expenseRepository;
 
-    public ExpenseDto getExpense(Long id) {
-        Expense expense = expenseRepository.findById(id).orElse(null);
+    @Autowired
+    private UserRepository userRepository;
 
-        return expenseMapper.toDto(expense);
+    public ExpenseDto getExpense(Long id, User user) {
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+
+        if (!expense.getUser().equals(user)) {
+            throw new AccessDeniedException("Acesso negado: a despesa não pertence ao usuário.");
+        }
+
+        return Expense.toDto(expense);
     }
 
-    public void saveExpense(Expense expense) {
-        System.out.println(expense.getPaymentMethod());
-        expenseRepository.save(expense);
+    public Expense saveExpense(User user, Expense expense) {
+        expense.setUser(user);
+        return expenseRepository.save(expense);
     }
 
-    public List<?> getAllExpenses() {
-        List<Expense> expenses = expenseRepository.findAll();
+    public List<?> getAllExpenses(User user) {
+        List<Expense> expenses = expenseRepository.findByUser(user);
         return expenses.stream()
                 .map(expenseMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    public void deleteExpense(Long id) {
-        expenseRepository.deleteById(id);
+    public void deleteExpense(User user, Long id) {
+        Expense expense = expenseRepository.findById(id).orElseThrow(() -> new RuntimeException("Expense not found"));
+
+        if (!expense.getUser().equals(user)) {
+            throw new RuntimeException("You are not allowed to delete this expense");
+        }
+
+        expenseRepository.delete(expense);
     }
 
-    public List<Expense> getExpenseForDateRange(Date startDate, Date endDate) {
+    public List<Expense> getExpenseForDateRange(Date startDate, Date endDate, User user) {
         return expenseRepository.findAllByDateBetween(startDate, endDate);
     }
 
-    public List<Expense> getExpenseForDate(Date date) {
-        return expenseRepository.findAllByDate(date);
+    public List<ExpenseDto> getExpenseForDate(java.sql.Date date, User user) {
+        List<Expense> expenses =  expenseRepository.findByDateAndUser(date, user);
+        return expenses.stream().map(Expense::toDto).collect(Collectors.toList());
     }
 
-    public List<Expense> getExpensesLastThreeMonths() {
+    public List<Expense> getExpensesLastThreeMonths(User user) {
         LocalDate threeMonthsAgoLocalDate = LocalDate.now().minusMonths(3);
         Date threeMonthsAgo = Date.from(threeMonthsAgoLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        return expenseRepository.findAllExpensesLastThreeMonths(threeMonthsAgo);
+        return expenseRepository.findAllExpensesLastThreeMonths(threeMonthsAgo, user);
     }
 
 
