@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/v1/expanse")
-@PreAuthorize("hasAnyRole('expanse')")
+@RequestMapping("/v1/expense")
+@PreAuthorize("hasAnyRole('expense')")
 public class ExpenseController {
 
     @Autowired

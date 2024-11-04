@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 
 
 @RestController
-@RequestMapping("/v1/expanse/filter")
-@PreAuthorize("hasAnyRole('expanse')")
+@RequestMapping("/v1/expense/filter")
+@PreAuthorize("hasAnyRole('expense')")
 public class ExpenseFilterController {
 
     @Autowired
