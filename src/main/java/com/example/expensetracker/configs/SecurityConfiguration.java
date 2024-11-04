@@ -21,6 +21,18 @@ public class SecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    private static final String[] SWAGGER_WHITELIST = {
+            "/swagger-ui.html",
+            "/v3/api-docs/**",           // Para OpenAPI 3
+            "/v1/api-docs",              // Seu endpoint customizado
+            "/swagger-resources/**",
+            "/swagger-resources",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui/**",            // Interface da UI do Swagger
+            "/webjars/**"                // Recursos estáticos do Swagger
+    };
+
     public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter, AuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -29,6 +41,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.requestMatchers(SWAGGER_WHITELIST).permitAll())
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/*/auth/**").permitAll())
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/*/expense/**").authenticated().anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -42,7 +55,7 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of("http://localhost:8080"));
-        configuration.setAllowedMethods(List.of("GET", "POST"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
