@@ -93,4 +93,11 @@ public class ExpenseController {
         return expenses.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) : ResponseEntity.ok(expenses);
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<List<ExpenseDto>> getExpensesByFilterType(@RequestParam("filter") String filter) {
+        User user = SecurityUtils.getAuthenticatedUser();
+        List<ExpenseDto> expenses = expenseService.getExpenseFilterCategory(filter, user);
+        return expenses.isEmpty() ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(null) : ResponseEntity.ok(expenses);
+    }
+
 }
