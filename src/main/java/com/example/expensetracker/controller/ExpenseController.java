@@ -6,7 +6,10 @@ import com.example.expensetracker.model.Expense;
 import com.example.expensetracker.model.User;
 import com.example.expensetracker.services.ExpenseService;
 import com.example.expensetracker.utils.SecurityUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,14 +35,14 @@ public class ExpenseController {
         return "expense success";
     }
 
-
+    @Operation(summary = "Cria uma nova despesa")
     @PostMapping("/create")
-    public ResponseEntity<String> addExpense(@RequestBody ExpenseDto expenseDto) {
+    public ResponseEntity<String> addExpense(@RequestBody @Schema(description = "Dados da despesa") ExpenseDto expenseDto) {
         User user = SecurityUtils.getAuthenticatedUser();
         try {
             Expense expense = Expense.fromDto(expenseDto);
             expenseService.saveExpense(user, expense);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Expense added successfully." + expense.toString());
+            return ResponseEntity.status(HttpStatus.CREATED).body("Expense added successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding expense: " + e.getMessage());
         }
@@ -56,13 +59,8 @@ public class ExpenseController {
     @PatchMapping("/{id}")
     public ResponseEntity<ExpenseDto> getExpenseById(@PathVariable Long id, @RequestBody ExpenseDto expenseDto) {
         User user = SecurityUtils.getAuthenticatedUser();
-        ExpenseDto result = expenseService.getExpense(id, user);
-        result.setCategory(expenseDto.getCategory());
-        result.setDescription(expenseDto.getDescription());
-        result.setPrice(expenseDto.getPrice());
-        result.setDate(expenseDto.getDate());
-        result.setObservation(expenseDto.getObservation());
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        ExpenseDto updateExpense = expenseService.updateExpense(id, user, expenseDto);
+        return ResponseEntity.status(HttpStatus.OK).body(updateExpense);
     }
 
     @DeleteMapping("/{id}")
