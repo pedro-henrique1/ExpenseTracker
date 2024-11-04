@@ -55,7 +55,7 @@ public class ExpenseFilterController {
     }
 
     @Operation(summary = "Busca as depesas com base na categoria")
-    @GetMapping("/filter")
+    @GetMapping("/category")
     public ResponseEntity<List<ExpenseDto>> getExpensesByFilterType(@RequestParam("filter") String filter) {
         User user = SecurityUtils.getAuthenticatedUser();
         List<ExpenseDto> expenses = expenseService.getExpenseFilterCategory(filter, user);
