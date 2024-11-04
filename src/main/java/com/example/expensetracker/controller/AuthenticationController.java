@@ -6,6 +6,7 @@ import com.example.expensetracker.model.User;
 import com.example.expensetracker.responses.LoginResponse;
 import com.example.expensetracker.services.AuthenticationService;
 import com.example.expensetracker.services.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,7 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
+    @Operation(summary = "Cria um usuário")
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
@@ -28,6 +30,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(registeredUser);
     }
 
+    @Operation(summary = "Gerar uo token JWT")
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
