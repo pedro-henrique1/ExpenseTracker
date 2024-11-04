@@ -62,6 +62,17 @@ A API oferece as seguintes funcionalidades:
 
 ```
 
+## Documentação com Swagger
+Esta API possui documentação interativa gerada automaticamente pelo Swagger, o que facilita a visualização e o teste dos endpoints.
+
+Após iniciar a aplicação, acesse a documentação pelo seguinte endereço:
+
+* **Swagger UI**: http://localhost:8080/swagger-ui/index.html
+
+Através da interface Swagger, você pode explorar todos os endpoints disponíveis, visualizar parâmetros de requisição e resposta, além de testar as requisições diretamente na interface.
+
+
+
 ## Endpoints
 
 ### Expense Controller
