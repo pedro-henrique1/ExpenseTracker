@@ -2,6 +2,8 @@ package com.example.expensetracker.model;
 
 
 import com.example.expensetracker.dtos.ExpenseDto;
+import com.example.expensetracker.enums.Categoria;
+import com.example.expensetracker.enums.MetodoPagamento;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

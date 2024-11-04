@@ -2,7 +2,7 @@ package com.example.expensetracker.services;
 
 import com.example.expensetracker.dtos.ExpenseDto;
 import com.example.expensetracker.mapper.ExpenseMapper;
-import com.example.expensetracker.model.Categoria;
+import com.example.expensetracker.enums.Categoria;
 import com.example.expensetracker.model.Expense;
 import com.example.expensetracker.model.User;
 import com.example.expensetracker.repositories.ExpenseRepository;

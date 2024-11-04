@@ -1,6 +1,6 @@
 package com.example.expensetracker.repositories;
 
-import com.example.expensetracker.model.Categoria;
+import com.example.expensetracker.enums.Categoria;
 import com.example.expensetracker.model.Expense;
 import com.example.expensetracker.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

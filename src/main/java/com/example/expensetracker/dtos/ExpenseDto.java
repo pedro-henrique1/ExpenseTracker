@@ -1,8 +1,7 @@
 package com.example.expensetracker.dtos;
 
-import com.example.expensetracker.model.Categoria;
-import com.example.expensetracker.model.Expense;
-import com.example.expensetracker.model.MetodoPagamento;
+import com.example.expensetracker.enums.Categoria;
+import com.example.expensetracker.enums.MetodoPagamento;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
