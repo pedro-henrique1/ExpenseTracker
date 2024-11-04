@@ -10,10 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Calendar;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +30,7 @@ public class ExpenseService {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
 
-        if (!expense.getUser().equals(user)) {
+        if (!expense.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("Acesso negado: a despesa não pertence ao usuário.");
         }
 
@@ -51,10 +49,34 @@ public class ExpenseService {
                 .collect(Collectors.toList());
     }
 
+    public ExpenseDto updateExpense(Long id, User user, ExpenseDto expenseDto) {
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Expense not found"));
+
+        if (!expense.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You are not allowed to delete this expense");
+        }
+
+        // Atualiza os campos da despesa
+        expense.setCategory(expenseDto.getCategory());
+        expense.setDescription(expenseDto.getDescription());
+        expense.setPrice(expenseDto.getPrice());
+        expense.setDate(expenseDto.getDate());
+        expense.setObservation(expenseDto.getObservation());
+
+        // Salva e retorna a despesa atualizada
+        Expense updatedExpense = expenseRepository.save(expense);
+
+        // Converte a despesa atualizada em DTO
+        return expenseMapper.toDto(updatedExpense);
+    }
+
+
+
     public void deleteExpense(User user, Long id) {
         Expense expense = expenseRepository.findById(id).orElseThrow(() -> new RuntimeException("Expense not found"));
 
-        if (!expense.getUser().equals(user)) {
+        if (!expense.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("You are not allowed to delete this expense");
         }
 
@@ -62,7 +84,7 @@ public class ExpenseService {
     }
 
     public List<ExpenseDto> getExpenseForDateRange(Date startDate, Date endDate, User user) {
-        List<Expense> expenses =  expenseRepository.findAllByDateBetween(startDate, endDate);
+        List<Expense> expenses =  expenseRepository.findAllByDateBetween(startDate, endDate, user);
         return expenses.stream().map(Expense::toDto).collect(Collectors.toList());
     }
 
