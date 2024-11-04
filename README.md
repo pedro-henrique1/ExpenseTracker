@@ -94,7 +94,7 @@ A autenticação nesta API é baseada em JWT (JSON Web Tokens). Após o login, o
 
 
 ## Licença
-Este projeto está licenciado sob a licença MIT. Sinta-se à vontade para usar, modificar e distribuir conforme os termos da licença.
+Este projeto está licenciado sob a licença [MIT](LICENSE). Sinta-se à vontade para usar, modificar e distribuir conforme os termos da licença.
 
 
 
