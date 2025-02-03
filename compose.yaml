@@ -8,10 +8,8 @@ services:
   mysqldb:
     image: mysql:8.1
     environment:
-      #      - MYSQL_DATABASE=blogging
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_ROOT_PASSWORD= ${MYSQL_ROOT_PASSWORD}
-    #      - MYSQL_ROOT_PASSWORD=password
     volumes:
       - ./mysql_data:/var/lib/mysql
     ports:
