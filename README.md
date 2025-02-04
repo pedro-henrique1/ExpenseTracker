@@ -139,7 +139,7 @@ resposta, além de testar as requisições diretamente na interface.
 }
 ```
 
-Response body
+Resposta:
 
 ``` json
 {  
