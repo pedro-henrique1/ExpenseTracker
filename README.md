@@ -59,11 +59,16 @@ A API oferece as seguintes funcionalidades:
   cd ExpenseTracker
 ```
 
-- Configure o arquivo com as variáveis de ambiente
+## Configurando o Ambiente
+
+- Crie um arquivo .env a partir do exemplo fornecido:
 
 ```
   cp .env.example .env
 ```
+
+- Em seguida, configure o arquivo de propriedades de aplicação:
+
 
 ```
   cd src/main/resources
@@ -71,7 +76,7 @@ A API oferece as seguintes funcionalidades:
   cp example.application.properties  application.properties
 ```
 
-- Iniciando o projeto::
+- Iniciando o projeto:
 
 ```
   docker-compose up --build
@@ -98,6 +103,7 @@ resposta, além de testar as requisições diretamente na interface.
     * Exemplo de requisição
   ```json
     {
+      "id": 1,
       "description": "Compra de supermercado",
       "price": 150.75,
       "date": "2025-02-04T15:30:00",  
