@@ -7,6 +7,12 @@
 [sql]:https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white
 [swagger]:https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white
 
+![][JAVA_BADGE]
+![][SPRING_BADGE]
+![][Docker]
+![][sql]
+![][swagger]
+
 A API de Rastreamento de Despesas permite que os usuários gerenciem suas despesas, com funcionalidades para cadastro,
 autenticação, e operações CRUD (criar, ler, atualizar e excluir) sobre as despesas. Cada usuário possui seu próprio
 conjunto de despesas, acessível somente após autenticação.
