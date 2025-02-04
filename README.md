@@ -103,7 +103,6 @@ resposta, além de testar as requisições diretamente na interface.
     * Exemplo de requisição
   ```json
     {
-      "id": 1,
       "description": "Compra de supermercado",
       "price": 150.75,
       "date": "2025-02-04T15:30:00",  
