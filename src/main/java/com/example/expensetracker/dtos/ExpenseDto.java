@@ -15,6 +15,7 @@ import java.sql.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExpenseDto {
+    private Long id;
     private String description;
     private BigDecimal price;
     private Date date;

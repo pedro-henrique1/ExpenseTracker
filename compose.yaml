@@ -3,21 +3,42 @@ services:
     build:
       context: .
     ports:
-      - 8080:8080
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: "512M"
+        reservations:
+          memory: "256M"
 
-  mysqldb:
-    image: mysql:8.1
-    environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_ROOT_PASSWORD= ${MYSQL_ROOT_PASSWORD}
-    volumes:
-      - ./mysql_data:/var/lib/mysql
+
+  mysql:
+    image: mysql:8.0
+    restart: always
+    env_file:
+      - .env
     ports:
       - "3307:3306"
-
+    volumes:
+      - mysql_data:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: "1G"
+        reservations:
+          memory: "512M"
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
 
 
 volumes:
-  mysql-data:
+  mysql_data:
     driver: local
 
