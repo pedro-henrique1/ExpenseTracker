@@ -9,7 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-
+    env:
+      SECURITY_JWT_SECRET_KEY: ${{ secrets.SECURITY_JWT_SECRET_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -24,8 +25,7 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
           cache: maven
-        env:
-          SECURITY_JWT_SECRET_KEY: ${{ secrets.SECURITY_JWT_SECRET_KEY }}
+
 
           
 
