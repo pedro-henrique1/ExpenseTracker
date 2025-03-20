@@ -6,12 +6,15 @@
 [Docker]:https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white
 [sql]:https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white
 [swagger]:https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white
+[ci]:https://img.shields.io/github/actions/workflow/status/pedro-henrique1/ExpenseTracker/maven.yml?style=for-the-badge
 
 ![][JAVA_BADGE]
 ![][SPRING_BADGE]
 ![][Docker]
 ![][sql]
 ![][swagger]
+
+![][ci]
 
 A API de Rastreamento de Despesas permite que os usuários gerenciem suas despesas, com funcionalidades para cadastro,
 autenticação, e operações CRUD (criar, ler, atualizar e excluir) sobre as despesas. Cada usuário possui seu próprio
