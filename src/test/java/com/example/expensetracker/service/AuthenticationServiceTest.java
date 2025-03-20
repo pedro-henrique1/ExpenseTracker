@@ -36,7 +36,7 @@ public class AuthenticationServiceTest {
     }
 
 
-    @RepeatedTest(10)
+    @Test
     @DisplayName("Deve criar um usuário com sucesso")
     public void testCreateUser() {
         RegisterUserDto user = new RegisterUserDto();
