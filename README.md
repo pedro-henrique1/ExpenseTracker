@@ -16,7 +16,6 @@
 ![][Docker]
 ![][sql]
 ![][swagger]
-
 ![][checks]
 ![][ci]
 
