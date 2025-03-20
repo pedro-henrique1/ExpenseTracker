@@ -24,6 +24,10 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
           cache: maven
+        env:
+          SECURITY_JWT_SECRET_KEY: ${{ secrets.SECURITY_JWT_SECRET_KEY }}
+
+          
 
       - name: Build with Maven
         run: mvn clean package -B
