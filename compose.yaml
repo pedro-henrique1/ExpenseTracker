@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   server:
     build:
@@ -5,8 +7,11 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/expense?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+    networks:
+      - network
     deploy:
       resources:
         limits:
@@ -15,30 +20,28 @@ services:
         reservations:
           memory: "256M"
 
-
   mysql:
+    container_name: mysql
     image: mysql:8.0
     restart: always
-    env_file:
-      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: expense
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-    deploy:
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: "1G"
-        reservations:
-          memory: "512M"
     healthcheck:
-      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       timeout: 20s
       retries: 10
-
+    networks:
+      - network
 
 volumes:
   mysql_data:
     driver: local
 
+networks:
+  network:
+    driver: bridge
