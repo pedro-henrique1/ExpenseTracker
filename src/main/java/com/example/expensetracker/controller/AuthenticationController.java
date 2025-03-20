@@ -7,6 +7,7 @@ import com.example.expensetracker.responses.LoginResponse;
 import com.example.expensetracker.services.AuthenticationService;
 import com.example.expensetracker.services.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class AuthenticationController {
 
     @Operation(summary = "Cria um usuário")
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
+    public ResponseEntity<User> register(@Valid @RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
 
         return ResponseEntity.ok(registeredUser);
