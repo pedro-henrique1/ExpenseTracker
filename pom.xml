@@ -29,6 +29,16 @@
     <properties>
         <java.version>21</java.version>
     </properties>
+    <profiles>
+        <profile>
+            <id>test</id>
+            <properties>
+                <maven.test.skip>false</maven.test.skip>
+            </properties>
+
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
