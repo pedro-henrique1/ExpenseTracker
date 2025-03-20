@@ -2,8 +2,8 @@ package com.example.expensetracker.exceptions;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -49,4 +49,20 @@ public class GlobalExceptionHandler {
         errorDetail.setProperty("description", description);
         return errorDetail;
     }
+
+    @ExceptionHandler(EmailDuplicateException.class)
+    public ResponseEntity handleEmailDuplicateException(EmailDuplicateException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        return new ResponseEntity<>("Erro de integridade de dados: " + e.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(MissingRequiredFieldException.class)
+    public ResponseEntity<String> handlePasswordNull(MissingRequiredFieldException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 }
