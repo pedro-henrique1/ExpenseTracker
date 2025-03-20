@@ -7,6 +7,9 @@
 [sql]:https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white
 [swagger]:https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white
 [ci]:https://img.shields.io/github/actions/workflow/status/pedro-henrique1/ExpenseTracker/maven.yml?style=for-the-badge
+[checks]:https://img.shields.io/github/check-runs/pedro-henrique1/ExpenseTracker/main?style=for-the-badge
+
+
 
 ![][JAVA_BADGE]
 ![][SPRING_BADGE]
@@ -14,6 +17,7 @@
 ![][sql]
 ![][swagger]
 
+![][checks]
 ![][ci]
 
 A API de Rastreamento de Despesas permite que os usuários gerenciem suas despesas, com funcionalidades para cadastro,
