@@ -14,9 +14,13 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.context.ActiveProfiles;
 
+import javax.security.auth.login.CredentialNotFoundException;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -133,6 +137,43 @@ public class AuthenticationServiceTest {
 
     }
 
+    @Test
+    @DisplayName("Deve retorna um erro de password")
+    public void  testPasswordWrong() {
+        RegisterUserDto user = new RegisterUserDto();
+        user.setEmail("50testuser@test.com");
+        user.setPassword("testpass");
+        User savedUser = userService.signup(user);
+        assertNotNull(savedUser);
 
+        LoginUserDto loginUserDto = new LoginUserDto();
+        loginUserDto.setEmail("50testuser@test.com");
+        loginUserDto.setPassword("test");
+        assertThrows(BadCredentialsException.class, () -> userService.authenticate(loginUserDto));
+    }
+
+    @Test
+    @DisplayName("Verificação de senha criptografada")
+    public void  testPassword() {
+        RegisterUserDto user = new RegisterUserDto();
+        user.setEmail("50testuser@test.com");
+        user.setPassword("testpass");
+        User savedUser = userService.signup(user);
+        assertNotNull(savedUser);
+
+        LoginUserDto loginUserDto = new LoginUserDto();
+        loginUserDto.setEmail("50testuser@test.com");
+        loginUserDto.setPassword("testpass");
+
+        assertNotEquals(savedUser.getPassword(), loginUserDto.getPassword());
+    }
+
+    @Test
+    @DisplayName("Autenticação de usuário inexistente")
+    public void  testUserNonExistent() {
+        LoginUserDto loginUserDto = new LoginUserDto();
+        loginUserDto.setEmail("50testuser@test.com");
+        loginUserDto.setPassword("testpass");
+        assertThrows(BadCredentialsException.class, () -> userService.authenticate(loginUserDto));
+    }
 }
-
