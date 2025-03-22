@@ -10,6 +10,7 @@ import com.example.expensetracker.model.User;
 import com.example.expensetracker.repositories.UserRepository;
 import com.example.expensetracker.services.AuthenticationService;
 import com.example.expensetracker.services.ExpenseService;
+import com.sun.jdi.LongValue;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -49,7 +51,7 @@ public class TestExpenseService {
         RegisterUserDto userDto = new RegisterUserDto();
         userDto.setEmail("50testuser@test.com");
         userDto.setPassword("testpass");
-        User testUser = userService.signup(userDto);
+        testUser = userService.signup(userDto);
         assertNotNull(testUser, "Usuário de teste não foi criado corretamente.");
 
         Expense expense1 = new Expense();
@@ -76,11 +78,39 @@ public class TestExpenseService {
 
     @Test
     @DisplayName("Buscar dados de despesas do usuario")
-
     public void buscarDadosDespesas() {
         List<?> expenses = expenseService.getAllExpenses(testUser);
         assertNotNull(expenses, "A lista de despesas não deve ser nula.");
         assertTrue(expenses.isEmpty(), "O usuário deve ter pelo menos duas despesas cadastradas.");
     }
+
+    @Test
+    @DisplayName("Busca de despesa por id")
+    public void getExpense() {
+        Expense expense = Expense.fromDto(expenseService.getExpense(Long.valueOf(testUser.getId()), testUser));
+        assertNotNull(expense);
+    }
+
+    @Test
+    @DisplayName("Deve lançar uma expetion por despesa nao encontrada")
+    public void despesaNaoEncontrada() {
+        testUser.setId(20);
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> Expense.fromDto(expenseService.getExpense(Long.valueOf(testUser.getId()), testUser)));
+        log.info(exception.getMessage());
+        assertEquals("Despesa não encontrada", exception.getMessage());
+    }
+
+    @Test
+    public void testAccessDeniedForExpense() {
+        testUser.setId(20);
+        AccessDeniedException exception = assertThrows(AccessDeniedException.class,
+                () -> expenseService.getExpense(10L, testUser)
+        );
+
+        log.info(exception.getMessage());
+//        assertEquals("Acesso negado: a despesa não pertence ao usuário.", exception.getMessage());
+    }
+
 
 }
