@@ -112,7 +112,7 @@ resposta, além de testar as requisições diretamente na interface.
       "description": "Compra de supermercado",
       "price": 150.75,
       "date": "2025-02-04T15:30:00",  
-      "paymentMethod": "CARTAO_CREDITO",
+      "paymentMethod": "cartão de credito",
       "category": "ALIMENTACAO",
       "observation": "Compra mensal de alimentos"
     }

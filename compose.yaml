@@ -12,6 +12,11 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/expense?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
     networks:
       - network
+    volumes:
+      - ./src:/app/src
+      - ./target:/app/target
+      - ~/.m2:/root/.m2
+    command: ./mvn spring-boot:run
     deploy:
       resources:
         limits:

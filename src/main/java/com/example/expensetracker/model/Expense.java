@@ -2,8 +2,8 @@ package com.example.expensetracker.model;
 
 
 import com.example.expensetracker.dtos.ExpenseDto;
-import com.example.expensetracker.enums.Categoria;
-import com.example.expensetracker.enums.MetodoPagamento;
+import com.example.expensetracker.enums.Category;
+import com.example.expensetracker.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -33,12 +33,12 @@ public class Expense {
     private java.sql.Date date;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", columnDefinition = "ENUM('Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'Transferência Bancária', 'Pix', 'Boleto', 'Aplicativos de Pagamento', 'Cheque', 'Cartão de Benefícios')")
-    private MetodoPagamento paymentMethod;
+    @Column(name = "payment_method")
+    private PaymentMethod paymentMethod;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "category", columnDefinition = "ENUM ('Alimentação', 'Transporte', 'Lazer', 'Saúde', 'Moradia','Educação', 'Outros')")
-    private Categoria category;
+    @Column(name = "category")
+    private Category category;
 
     private String observation;
 
@@ -50,7 +50,7 @@ public class Expense {
     @Column(name = "updated_at")
     private Date updatedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 

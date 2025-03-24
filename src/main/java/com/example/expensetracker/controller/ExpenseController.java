@@ -38,13 +38,24 @@ public class ExpenseController {
         }
     }
 
+    @Operation(summary = "Bsuca uma despesa")
+    @GetMapping("/{id}")
+    public ResponseEntity<Expense> getExpenses(@PathVariable Long id) {
+        User user = SecurityUtils.getAuthenticatedUser();
+        assert user != null;
+        Expense expense = Expense.fromDto(expenseService.getExpense(id, user));
+        return ResponseEntity.status(HttpStatus.OK).body(expense);
+    }
+
 
     @Operation(summary = "Busca todas as despesas")
     @GetMapping("/all")
     public ResponseEntity<? extends List<?>> getAllExpenses() {
         User user = SecurityUtils.getAuthenticatedUser();
         List<?> expenses = expenseService.getAllExpenses(user);
-        return Optional.of(expenses).filter(list -> !list.isEmpty()).map(list -> ResponseEntity.status(HttpStatus.OK).body(list)).orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).body(null));
+        return Optional.of(expenses).filter(list -> !list.isEmpty()).map(
+                list -> ResponseEntity.status(HttpStatus.OK).body(list))
+                .orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).body(null));
     }
 
     @Operation(summary = "Atualiza a despesas com base no id")
@@ -62,8 +73,6 @@ public class ExpenseController {
         User user = SecurityUtils.getAuthenticatedUser();
         assert user != null;
         expenseService.deleteExpense(user, id);
-        return ResponseEntity.status(HttpStatus.OK).body("Expense deleted successfully." + id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
-
 }
