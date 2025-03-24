@@ -91,6 +91,34 @@ public class TestExpenseService {
         assertTrue(expenses.size() >= 2, "O usuário deve ter pelo menos duas despesas cadastradas.");
     }
 
+    @Test
+    @DisplayName("Buscar dados de uma despesa do usuario")
+    public void buscarDadosDespesasUsuario() {
+        ExpenseDto expense = expenseService.getExpense(1L, testUser);
+        log.info("Despesa encontrada: {}", expense.toString());
+        assertNotNull(expense, "A despesa não deve ser nula.");
+    }
+
+
+    @Test
+    @DisplayName("Deve lançar AccessDeniedException quando a despesa não pertencer ao usuário")
+    public void erroDeAcessoDespesas() {
+        AccessDeniedException exception = assertThrows(AccessDeniedException.class,
+                () -> expenseService.getExpense(1L, testUser2));
+        assertEquals("Acesso negado: a despesa não pertence ao usuário.", exception.getMessage());
+    }
+
+
+    @Test
+    @DisplayName("Deve lançar RuntimeException quando a despesa não foi encontrada")
+    public void despesaNaoEncontrada() {
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> expenseService.getExpense(40L, testUser2));
+        assertEquals("Despesa não encontrada", exception.getMessage());
+    }
+
+
+
 
 
 }
