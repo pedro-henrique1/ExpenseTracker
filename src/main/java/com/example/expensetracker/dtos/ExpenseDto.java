@@ -2,10 +2,7 @@ package com.example.expensetracker.dtos;
 
 import com.example.expensetracker.enums.Category;
 import com.example.expensetracker.enums.PaymentMethod;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -14,6 +11,7 @@ import java.sql.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class ExpenseDto {
     private Long id;
     private String description;

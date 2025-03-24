@@ -7,6 +7,8 @@ import com.example.expensetracker.model.Expense;
 import com.example.expensetracker.model.User;
 import com.example.expensetracker.repositories.ExpenseRepository;
 import com.example.expensetracker.repositories.UserRepository;
+import com.example.expensetracker.utils.SecurityUtils;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +35,9 @@ public class ExpenseService {
     public ExpenseDto getExpense(Long id, User user) {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
-        log.info("Despesa encontrada: ID = {}, Valor = {}, Usuário = {}", expense.getId(), expense.getPaymentMethod(), expense.getUser().getId());
-        log.info(expenseRepository.findById(id).get().toString());
-        log.info(String.valueOf(expense.getUser().getId().equals(user.getId())));
         if (!expense.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("Acesso negado: a despesa não pertence ao usuário.");
         }
-
         return Expense.toDto(expense);
     }
 

@@ -53,7 +53,9 @@ public class ExpenseController {
     public ResponseEntity<? extends List<?>> getAllExpenses() {
         User user = SecurityUtils.getAuthenticatedUser();
         List<?> expenses = expenseService.getAllExpenses(user);
-        return Optional.of(expenses).filter(list -> !list.isEmpty()).map(list -> ResponseEntity.status(HttpStatus.OK).body(list)).orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).body(null));
+        return Optional.of(expenses).filter(list -> !list.isEmpty()).map(
+                list -> ResponseEntity.status(HttpStatus.OK).body(list))
+                .orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).body(null));
     }
 
     @Operation(summary = "Atualiza a despesas com base no id")
