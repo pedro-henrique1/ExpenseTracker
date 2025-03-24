@@ -1,7 +1,7 @@
 package com.example.expensetracker.dtos;
 
-import com.example.expensetracker.enums.Categoria;
-import com.example.expensetracker.enums.MetodoPagamento;
+import com.example.expensetracker.enums.Category;
+import com.example.expensetracker.enums.PaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ public class ExpenseDto {
     private String description;
     private BigDecimal price;
     private Date date;
-    private MetodoPagamento paymentMethod;
-    private Categoria category;
+    private PaymentMethod paymentMethod;
+    private Category category;
     private String observation;
 }

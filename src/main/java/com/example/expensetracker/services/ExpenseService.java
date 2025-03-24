@@ -1,12 +1,14 @@
 package com.example.expensetracker.services;
 
 import com.example.expensetracker.dtos.ExpenseDto;
+import com.example.expensetracker.enums.Category;
 import com.example.expensetracker.mapper.ExpenseMapper;
-import com.example.expensetracker.enums.Categoria;
 import com.example.expensetracker.model.Expense;
 import com.example.expensetracker.model.User;
 import com.example.expensetracker.repositories.ExpenseRepository;
 import com.example.expensetracker.repositories.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ExpenseService {
+    private static final Logger log = LoggerFactory.getLogger(ExpenseService.class);
     @Autowired
     private ExpenseMapper expenseMapper;
 
@@ -30,7 +33,9 @@ public class ExpenseService {
     public ExpenseDto getExpense(Long id, User user) {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
-
+        log.info("Despesa encontrada: ID = {}, Valor = {}, Usuário = {}", expense.getId(), expense.getPaymentMethod(), expense.getUser().getId());
+        log.info(expenseRepository.findById(id).get().toString());
+        log.info(String.valueOf(expense.getUser().getId().equals(user.getId())));
         if (!expense.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("Acesso negado: a despesa não pertence ao usuário.");
         }
@@ -103,7 +108,7 @@ public class ExpenseService {
 
 
     public List<ExpenseDto> getExpenseFilterCategory(String category, User user) {
-        Categoria categoria = Categoria.valueOf(category.toUpperCase());
+        Category categoria = Category.valueOf(category.toUpperCase());
         List<Expense> expenses = expenseRepository.findFilterByCategory(categoria, user);
         return expenses.stream().map(Expense::toDto).collect(Collectors.toList());
     }
