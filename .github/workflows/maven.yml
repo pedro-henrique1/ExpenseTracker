@@ -41,14 +41,12 @@ jobs:
         with:
           paths: target/site/jacoco/jacoco.xml
           token: ${{ secrets.GH_PAT }}
-          base-branch: main
           min-coverage-overall: 40
           min-coverage-changed-files: 60
           title: ':lobster: Coverage Report'
           update-comment: true
-          pass-emoji: ':green_square:'
+          pass-emoji: ':white_check_mark:'
           fail-emoji: ':red_square:'
-          debug-mode: true
 
       - name: Get the Coverage info
         run: |
