@@ -5,11 +5,13 @@ import com.example.expensetracker.dtos.ExpenseDto;
 import com.example.expensetracker.dtos.RegisterUserDto;
 import com.example.expensetracker.enums.Category;
 import com.example.expensetracker.enums.PaymentMethod;
+import com.example.expensetracker.exceptions.MissingRequiredFieldException;
 import com.example.expensetracker.model.Expense;
 import com.example.expensetracker.model.User;
 import com.example.expensetracker.services.AuthenticationService;
 import com.example.expensetracker.services.ExpenseService;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.AssertionFailure;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -90,6 +92,102 @@ public class TestExpenseService {
         assertNotNull(expenses, "A lista de despesas não deve ser nula.");
         assertTrue(expenses.size() >= 2, "O usuário deve ter pelo menos duas despesas cadastradas.");
     }
+
+    @Test
+    @DisplayName("Buscar dados de uma despesa do usuario")
+    public void buscarDadosDespesasUsuario() {
+        ExpenseDto expense = expenseService.getExpense(1L, testUser);
+        log.info("Despesa encontrada: {}", expense.toString());
+        assertNotNull(expense, "A despesa não deve ser nula.");
+    }
+
+
+    @Test
+    @DisplayName("Deve lançar AccessDeniedException quando a despesa não pertencer ao usuário")
+    public void erroDeAcessoDespesas() {
+        AccessDeniedException exception = assertThrows(AccessDeniedException.class,
+                () -> expenseService.getExpense(1L, testUser2));
+        assertEquals("Acesso negado: a despesa não pertence ao usuário.", exception.getMessage());
+    }
+
+
+    @Test
+    @DisplayName("Deve lançar RuntimeException quando a despesa não foi encontrada")
+    public void despesaNaoEncontrada() {
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> expenseService.getExpense(40L, testUser2));
+        assertEquals("Despesa não encontrada", exception.getMessage());
+    }
+
+    @Test
+    public void criarDespesaComSucesso() {
+        Expense novaDespesa = new Expense();
+        novaDespesa.setDescription("Compra de mercado");
+        novaDespesa.setPrice(new BigDecimal("150.00"));
+        novaDespesa.setCategory(Category.ALIMENTACAO);
+        novaDespesa.setPaymentMethod(PaymentMethod.PIX);
+        novaDespesa.setDate(Date.valueOf(LocalDate.now()));
+        novaDespesa.setObservation("Compras do mês");
+        Expense expense = expenseService.saveExpense(testUser, novaDespesa);
+
+        assertNotNull(expense, "A despesa criada não deve ser nula.");
+        assertNotNull(expense.getId(), "A despesa criada deve ter um ID.");
+        assertEquals("Compra de mercado", expense.getDescription());
+    }
+
+    @Test
+    public void criarDespesaSemUsuario() {
+        Expense novaDespesa = new Expense();
+        novaDespesa.setDescription("Compra de mercado");
+        novaDespesa.setPrice(new BigDecimal("150.00"));
+        novaDespesa.setCategory(Category.ALIMENTACAO);
+        novaDespesa.setPaymentMethod(PaymentMethod.PIX);
+        novaDespesa.setDate(Date.valueOf(LocalDate.now()));
+        novaDespesa.setObservation("Compras do mês");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> expenseService.saveExpense(null, novaDespesa));
+
+        assertEquals("O usuario nao pose ser invalido", exception.getMessage());
+    }
+
+    @Test
+    public void criarDespesaComValorNegativo() {
+        Expense novaDespesa = new Expense();
+        novaDespesa.setDescription("Compra de mercado");
+        novaDespesa.setPrice(new BigDecimal("-150.00"));
+        novaDespesa.setCategory(Category.ALIMENTACAO);
+        novaDespesa.setPaymentMethod(PaymentMethod.PIX);
+        novaDespesa.setDate(Date.valueOf(LocalDate.now()));
+        novaDespesa.setObservation("Compras do mês");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> expenseService.saveExpense(testUser, novaDespesa));
+
+        assertEquals("O preço não pode ser negativo", exception.getMessage());
+    }
+
+    @Test
+    public void criarDespesaComValorInvalido() {
+        Expense novaDespesa = new Expense();
+        novaDespesa.setDescription("");
+        novaDespesa.setPrice(new BigDecimal("1.1"));
+        novaDespesa.setCategory(Category.ALIMENTACAO);
+        novaDespesa.setPaymentMethod(PaymentMethod.PIX);
+        novaDespesa.setDate(Date.valueOf(LocalDate.now()));
+        novaDespesa.setObservation("Compras do mês");
+
+        MissingRequiredFieldException exception = assertThrows(MissingRequiredFieldException.class,
+                () -> expenseService.saveExpense(testUser, novaDespesa));
+
+        assertEquals("Os campos devem ser preenchidos corretamente", exception.getMessage());
+    }
+
+
+
+
+
+
 
 
 
