@@ -37,7 +37,7 @@ jobs:
 
       - name: Upload Coverage Report
         id: jacoco
-        uses: madrapps/jacoco-report@v1.7.1
+        uses: madrapps/jacoco-report@v1.6.1
         with:
           paths: target/site/jacoco/jacoco.xml
           token: ${{ secrets.GH_PAT }}
