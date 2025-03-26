@@ -41,6 +41,7 @@ jobs:
         with:
           paths: target/site/jacoco/jacoco.xml
           token: ${{ secrets.GH_PAT }}
+          base-branch: main
           min-coverage-overall: 40
           min-coverage-changed-files: 60
           title: ':lobster: Coverage Report'
