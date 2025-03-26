@@ -183,6 +183,25 @@ public class TestExpenseService {
         assertEquals("Os campos devem ser preenchidos corretamente", exception.getMessage());
     }
 
+    @Test
+    public void atualizarExpense() {
+        ExpenseDto novaDespesa = new ExpenseDto();
+        novaDespesa.setDescription("Compra de mercado");
+        novaDespesa.setPrice(new BigDecimal("150.00"));
+        novaDespesa.setCategory(Category.ALIMENTACAO);
+        novaDespesa.setPaymentMethod(PaymentMethod.PIX);
+        novaDespesa.setDate(Date.valueOf(LocalDate.now()));
+        novaDespesa.setObservation("Compra de mercado");
+        Expense expense = expenseService.saveExpense(testUser, Expense.fromDto(novaDespesa));
+        expense.setPrice(new BigDecimal("1500.00"));
+        expense.setObservation("Compra de mercado do mes");
+        expenseService.updateExpense(1L, testUser, novaDespesa);
+
+        assertEquals("Compra de mercado do mes", expense.getObservation());
+        assertEquals("1500.00", expense.getPrice().toString());
+
+
+    }
 
 
 
