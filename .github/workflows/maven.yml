@@ -29,7 +29,7 @@ jobs:
         run: mvn clean package -B
 
       - name: Run Tests with Coverage
-        run: mvn test jacoco:report
+        run: mvn clean verify
 
       - name: Upload Coverage Report
         id: jacoco
@@ -39,3 +39,13 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           min-coverage-overall: 40
           min-coverage-changed-files: 60
+          title: ':lobster: Coverage Report'
+          update-comment: true
+          pass-emoji: ':green_square:'
+          fail-emoji: ':red_square:'
+          debug-mode: true
+
+      - name: Get the Coverage info
+        run: |
+          echo "Total coverage ${{ steps.jacoco.outputs.coverage-overall }}"
+          echo "Changed Files coverage ${{ steps.jacoco.outputs.coverage-changed-files }}"
