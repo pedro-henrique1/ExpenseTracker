@@ -260,6 +260,28 @@ public class TestExpenseService {
         verify(expenseRepository, times(1)).findById(1L);
     }
 
+    @Test
+    @DisplayName("update de despesa com id diferente")
+    public void updateDespesaComIdDiferente() {
+        testExpense.setId(1);
+        testExpense.setUser(testUser2);
+
+        when(expenseRepository.findById(1L)).thenReturn(Optional.of(testExpense));
+
+        ExpenseDto novaDespesa = new ExpenseDto();
+        novaDespesa.setDescription("Compra de mercado");
+        novaDespesa.setPrice(new BigDecimal("150.00"));
+        novaDespesa.setObservation("Compras do mês");
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            expenseService.updateExpense(1L, testUser, novaDespesa);
+        });
+
+        assertEquals("Você não tem permissão para atualizar esta despesa", exception.getMessage());
+
+        verify(expenseRepository, never()).save(any(Expense.class));
+    }
+
 
     @Test
     @DisplayName("Excluir despesa existente")
@@ -267,6 +289,17 @@ public class TestExpenseService {
         doNothing().when(expenseRepository).delete(any(Expense.class));
         expenseService.deleteExpense(testUser, Long.valueOf(testUser.getId()));
         verify(expenseRepository, times(1)).delete(any(Expense.class));
+    }
+
+    @Test
+    @DisplayName("Despesa nao encontrada")
+    public void ExpenseNotFound() {
+        when(expenseRepository.findById(6L)).thenReturn(Optional.empty());
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            expenseService.deleteExpense(testUser, 6L);
+        });
+        assertEquals("Despesa não encontrada", exception.getMessage());
+        verify(expenseRepository, times(0)).delete(any(Expense.class));
     }
 
     @Test

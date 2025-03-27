@@ -83,7 +83,7 @@ public class ExpenseService {
                 .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
 
         if (!expense.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You are not allowed to delete this expense");
+            throw new RuntimeException("Você não tem permissão para atualizar esta despesa");
         }
 
         expense.setCategory(expenseDto.getCategory());
