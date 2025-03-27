@@ -25,6 +25,8 @@ import org.springframework.security.access.AccessDeniedException;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,6 +51,8 @@ public class TestExpenseService {
     private User testUser2;
 
     private Expense testExpense;
+    private Expense testExpense2;
+
 
     @BeforeEach
     void setup() {
@@ -82,6 +86,16 @@ public class TestExpenseService {
         testExpense.setDate(Date.valueOf(LocalDate.now()));
         testExpense.setObservation("Alimentação para o trabalho");
 
+        testExpense2 = new Expense();
+        testExpense2.setUser(testUser);
+        testExpense2.setId(2);
+        testExpense2.setDescription("Compra no supermercado");
+        testExpense2.setPrice(new BigDecimal("120.75"));
+        testExpense2.setCategory(Category.ALIMENTACAO);
+        testExpense2.setPaymentMethod(PaymentMethod.DINHEIRO);
+        testExpense2.setDate(Date.valueOf(LocalDate.now().minusDays(3)));
+        testExpense2.setObservation("Compra mensal");
+
         ExpenseDto expenseDto = new ExpenseDto();
         expenseDto.setId(1L);
         expenseDto.setDescription(testExpense.getDescription());
@@ -90,6 +104,15 @@ public class TestExpenseService {
         expenseDto.setPaymentMethod(testExpense.getPaymentMethod());
         expenseDto.setDate(testExpense.getDate());
         expenseDto.setObservation(testExpense.getObservation());
+
+        ExpenseDto expenseDto2 = new ExpenseDto();
+        expenseDto2.setId(2L);
+        expenseDto2.setDescription(testExpense2.getDescription());
+        expenseDto2.setPrice(testExpense2.getPrice());
+        expenseDto2.setCategory(testExpense2.getCategory());
+        expenseDto2.setPaymentMethod(testExpense2.getPaymentMethod());
+        expenseDto2.setDate(testExpense2.getDate());
+        expenseDto2.setObservation(testExpense2.getObservation());
 
         lenient().when(expenseRepository.findByUser(eq(testUser))).thenReturn(List.of(testExpense));
         lenient().when(expenseMapper.toDto(any(Expense.class))).thenAnswer(invocation -> {
@@ -220,7 +243,6 @@ public class TestExpenseService {
     @Test
     @DisplayName("Atualizar despesa existente")
     public void atualizarExpense() {
-        // Dado que a despesa já existe
         testExpense.setDescription("Almoço no restaurante");
         testExpense.setPrice(new BigDecimal("50.00"));
         testExpense.setObservation("Almoço de negócios");
@@ -245,5 +267,70 @@ public class TestExpenseService {
         doNothing().when(expenseRepository).delete(any(Expense.class));
         expenseService.deleteExpense(testUser, Long.valueOf(testUser.getId()));
         verify(expenseRepository, times(1)).delete(any(Expense.class));
+    }
+
+    @Test
+    @DisplayName("Deve lançar uma exception de acesso negado")
+    public void deleteAcessoNegado() {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> expenseService.deleteExpense(testUser2, 1L));
+        assertEquals("Acesso negado: a despesa não pertence ao usuário.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Deve retornar despesas dentro do intervalo de datas")
+    public void testGetExpenseForDateRange() {
+        Date startDate = Date.valueOf("2024-01-01");
+        Date endDate = Date.valueOf("2024-03-01");
+
+        when(expenseRepository.findAllByDateBetween(startDate, endDate, testUser))
+                .thenReturn(Arrays.asList(testExpense, testExpense2));
+
+        List<ExpenseDto> result = expenseService.getExpenseForDateRange(startDate, endDate, testUser);
+        log.info("resultado encontrado com intervalo de datas {}" ,result.toString());
+        assertEquals(2, result.size());
+        verify(expenseRepository, times(1)).findAllByDateBetween(startDate, endDate, testUser);
+    }
+
+    @Test
+    @DisplayName("Deve retornar despesas de um dia específico")
+    public void testGetExpenseForDate() {
+        Date date = new Date(Date.valueOf(LocalDate.now()).getTime());
+
+        when(expenseRepository.findByDateAndUser(date, testUser)).thenReturn(Arrays.asList(testExpense));
+
+        List<ExpenseDto> result = expenseService.getExpenseForDate(date, testUser);
+        log.info("resultado encontrado com uma data {}" ,result.toString());
+
+        assertEquals(1, result.size());
+        verify(expenseRepository, times(1)).findByDateAndUser(date, testUser);
+    }
+
+    @Test
+    @DisplayName("Deve retornar despesas dos últimos três meses")
+    public void testGetExpensesLastThreeMonths() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, -3);
+        Date threeMonthsAgo = new Date(Date.valueOf(LocalDate.now()).getTime());
+
+        when(expenseRepository.findByDateAfterAndUser(any(Date.class), eq(testUser)))
+                .thenReturn(Arrays.asList(testExpense, testExpense2));
+
+        List<Expense> result = expenseService.getExpensesLastThreeMonths(testUser);
+        log.info("resultado encontrado nos ultimos 3 meses {}" ,result.toString());
+
+        assertEquals(2, result.size());
+        verify(expenseRepository, times(1)).findByDateAfterAndUser(any(Date.class), eq(testUser));
+    }
+
+    @Test
+    @DisplayName("Deve filtrar despesas por categoria")
+    public void testGetExpenseFilterCategory() {
+        when(expenseRepository.findFilterByCategory(Category.ALIMENTACAO, testUser)).thenReturn(Arrays.asList(testExpense));
+
+        List<ExpenseDto> result = expenseService.getExpenseFilterCategory("ALIMENTACAO", testUser);
+        log.info("resultado encontrado no filtro de alimentação {}" ,result.toString());
+
+        assertEquals(1, result.size());
+        verify(expenseRepository, times(1)).findFilterByCategory(Category.ALIMENTACAO, testUser);
     }
 }
