@@ -227,7 +227,6 @@ public class TestExpenseService {
 
         when(expenseRepository.findById(1L)).thenReturn(Optional.of(testExpense));
 
-        // Cria um DTO com as novas informações
         ExpenseDto novaDespesa = new ExpenseDto();
         novaDespesa.setDescription("Compra de mercado");
         novaDespesa.setPrice(new BigDecimal("150.00"));
