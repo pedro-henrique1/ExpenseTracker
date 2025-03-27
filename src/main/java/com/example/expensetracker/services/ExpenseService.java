@@ -50,59 +50,58 @@ public class ExpenseService {
 
     public Expense saveExpense(User user, Expense expense) {
         if (user == null || user.getId() == null) {
-            throw new IllegalArgumentException("O usuario nao pose ser invalido");
+            throw new IllegalArgumentException("O usuario nao pode ser invalido");
         }
         if (expense.getPrice().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("O preço não pode ser negativo");
         }
-        boolean hasNullField = isNullOrEmpty(String.valueOf(expense.getCategory())) ||
-                isNullOrEmpty(expense.getDescription()) ||
-                isNullOrEmpty(String.valueOf(expense.getDate())) ||
-                isNullOrEmpty(String.valueOf(expense.getPaymentMethod()));
+
+        boolean hasNullField = expense.getCategory() == null ||
+                expense.getDescription() == null ||
+                expense.getDate() == null ||
+                expense.getPaymentMethod() == null;
 
 
         if (hasNullField){
             throw new MissingRequiredFieldException("Os campos devem ser preenchidos corretamente");
         }
+
         expense.setUser(user);
         return expenseRepository.save(expense);
     }
 
-    public List<?> getAllExpenses(User user) {
+    public List<ExpenseDto> getAllExpenses(User user) {
         List<Expense> expenses = expenseRepository.findByUser(user);
         return expenses.stream()
                 .map(expenseMapper::toDto)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     public ExpenseDto updateExpense(Long id, User user, ExpenseDto expenseDto) {
         Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Expense not found"));
+                .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
 
         if (!expense.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You are not allowed to delete this expense");
+            throw new RuntimeException("Você não tem permissão para atualizar esta despesa");
         }
 
-        // Atualiza os campos da despesa
         expense.setCategory(expenseDto.getCategory());
         expense.setDescription(expenseDto.getDescription());
         expense.setPrice(expenseDto.getPrice());
         expense.setDate(expenseDto.getDate());
         expense.setObservation(expenseDto.getObservation());
 
-        // Salva e retorna a despesa atualizada
         Expense updatedExpense = expenseRepository.save(expense);
-
-        // Converte a despesa atualizada em DTO
         return expenseMapper.toDto(updatedExpense);
     }
 
 
     public void deleteExpense(User user, Long id) {
-        Expense expense = expenseRepository.findById(id).orElseThrow(() -> new RuntimeException("Expense not found"));
+        Expense expense = expenseRepository.findById(id).orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
 
         if (!expense.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You are not allowed to delete this expense");
+            throw new RuntimeException("Acesso negado: a despesa não pertence ao usuário.");
         }
 
         expenseRepository.delete(expense);

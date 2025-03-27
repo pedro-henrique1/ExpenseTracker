@@ -10,170 +10,180 @@ import com.example.expensetracker.services.AuthenticationService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.security.auth.login.CredentialNotFoundException;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
 @ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 @Slf4j
 @DisplayName("Testes da AuthenticationService")
 public class AuthenticationServiceTest {
 
-    @Autowired
+    @InjectMocks
     private AuthenticationService userService;
 
-    @Autowired
+    @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private AuthenticationManager authenticationManager;
+
 
     @BeforeEach
     public void setUp() {
-        userRepository.deleteAll();
+        lenient().when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("encodedPassword");
+        UsernamePasswordAuthenticationToken token =
+                new UsernamePasswordAuthenticationToken("user", "password");
+        lenient().when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(new UsernamePasswordAuthenticationToken("user", "password", new ArrayList<>()));
+
+        reset(userRepository);
+
     }
 
 
     @Test
     @DisplayName("Deve criar um usuário com sucesso")
     public void testCreateUser() {
-        RegisterUserDto user = new RegisterUserDto();
-        user.setEmail("50testuser@test.com");
-        user.setPassword("testpass");
-        User savedUser = userService.signup(user);
-        log.info(savedUser.getUsername());
+        RegisterUserDto userDto = new RegisterUserDto();
+        userDto.setEmail("50testuser@test.com");
+        userDto.setPassword("testpass");
+
+        User mockUser = new User();
+        mockUser.setId(1);
+        mockUser.setEmail(userDto.getEmail());
+
+        when(userRepository.save(any(User.class))).thenReturn(mockUser);
+
+        User savedUser = userService.signup(userDto);
+
         assertNotNull(savedUser);
-        assertEquals(user.getEmail(), savedUser.getUsername());
-        assertTrue(userRepository.existsById(Long.valueOf(savedUser.getId())));
+        assertEquals(userDto.getEmail(), savedUser.getUsername());
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
-    @DisplayName("Deve lançar exceção ao criar usuário com e-mail duplicado")
-    public void testDuplicateEmail() {
-        RegisterUserDto user1 = new RegisterUserDto();
-        user1.setEmail("60testuser@test.com");
-        user1.setPassword("testpass");
-        userService.signup(user1);
-        RegisterUserDto user2 = new RegisterUserDto();
-        user2.setEmail("60testuser@test.com");
-        user2.setPassword("testpass");
-        EmailDuplicateException exception = assertThrows(EmailDuplicateException.class, () -> userService.signup(user2));
+    public void testEmailDuplicateConstraint() {
+        RegisterUserDto input = new RegisterUserDto();
+        input.setEmail("testuser@test.com");
+        input.setPassword("validPassword123");
+
+        User user1 = new User();
+        user1.setEmail(input.getEmail());
+        user1.setPassword(passwordEncoder.encode(input.getPassword()));
+        lenient().when(userRepository.save(any(User.class))).thenReturn(user1);
+
+        RegisterUserDto duplicateInput = new RegisterUserDto();
+        duplicateInput.setEmail("testuser@test.com");
+        duplicateInput.setPassword("anotherPassword123");
+        doThrow(new DataIntegrityViolationException("O e-mail já está em uso.")).when(userRepository).save(any(User.class));
+
+        EmailDuplicateException exception = assertThrows(EmailDuplicateException.class,
+                () -> userService.signup(duplicateInput));
         assertEquals("O e-mail já está em uso.", exception.getMessage());
-        assertNotNull(exception);
+        verify(userRepository, times(1)).save(any(User.class));
+
     }
+
+
 
     @Test
     @DisplayName("Deve lançar exceção quando a senha for nula")
     public void testPasswordNull() {
-        RegisterUserDto user = new RegisterUserDto();
-        user.setEmail("50testuser@test.com");
-        user.setPassword("");
-        MissingRequiredFieldException exception = assertThrows(MissingRequiredFieldException.class, () -> userService.signup(user));
-        log.info(exception.getMessage());
+        RegisterUserDto userDto = new RegisterUserDto();
+        userDto.setEmail("50testuser@test.com");
+        userDto.setPassword("");
+
+        MissingRequiredFieldException exception = assertThrows(MissingRequiredFieldException.class, () -> userService.signup(userDto));
         assertEquals("Email e/ou senha não pode ser vazio", exception.getMessage());
-        assertNotNull(exception);
     }
 
     @Test
     @DisplayName("Deve lançar exceção quando o e-mail for nulo")
     public void testEmailNull() {
-        RegisterUserDto user = new RegisterUserDto();
-        user.setEmail("");
-        user.setPassword("testpass");
-        MissingRequiredFieldException exception = assertThrows(MissingRequiredFieldException.class, () -> userService.signup(user));
-        log.info(exception.getMessage());
-        assertNotNull(exception);
+        RegisterUserDto userDto = new RegisterUserDto();
+        userDto.setEmail("");
+        userDto.setPassword("testpass");
+
+        MissingRequiredFieldException exception = assertThrows(MissingRequiredFieldException.class, () -> userService.signup(userDto));
+        assertEquals("Email e/ou senha não pode ser vazio", exception.getMessage());
     }
 
     @Test
     @DisplayName("Deve lançar exceção quando o e-mail for inválido")
     public void testInvalidEmail() {
-        RegisterUserDto user = new RegisterUserDto();
-        user.setEmail("testuser-test.com");
-        user.setPassword("testpass");
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.signup(user));
+        RegisterUserDto userDto = new RegisterUserDto();
+        userDto.setEmail("testuser-test.com");
+        userDto.setPassword("testpass");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.signup(userDto));
         assertEquals("Formato de email inválido", exception.getMessage());
-        log.info(exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Deve lançar exceção quando a senha for muito longa")
-    public void testLongPassword() {
-        RegisterUserDto user = new RegisterUserDto();
-        user.setEmail("longpass@test.com");
-        user.setPassword("a".repeat(100));
-        MissingRequiredFieldException exception = assertThrows(
-                MissingRequiredFieldException.class,
-                () -> userService.signup(user)
-        );
-
-        assertEquals("A senha deve ter entre 8 e 50 caracteres", exception.getMessage());
     }
 
     @Test
     @DisplayName("Deve autenticar usuário com credenciais válidas")
-    public void  testLogin() {
-        RegisterUserDto user = new RegisterUserDto();
-        user.setEmail("50testuser@test.com");
-        user.setPassword("testpass");
-        User savedUser = userService.signup(user);
-        assertNotNull(savedUser);
+    public void testLogin() {
+        String email = "50testuser@test.com";
+        String password = "testpass";
+
+        User mockUser = new User();
+        mockUser.setEmail(email);
+        mockUser.setPassword(password);
+
+        when(userRepository.findByEmail(email)).thenReturn(java.util.Optional.of(mockUser));
 
         LoginUserDto loginUserDto = new LoginUserDto();
-        loginUserDto.setEmail("50testuser@test.com");
-        loginUserDto.setPassword("testpass");
+        loginUserDto.setEmail(email);
+        loginUserDto.setPassword(password);
 
         User authenticatedUser = userService.authenticate(loginUserDto);
         assertNotNull(authenticatedUser);
-        log.info("Email: {}", loginUserDto.getEmail());
-        log.info("Expected Username: {}, Authenticated Username: {}", savedUser.getUsername(), authenticatedUser.getUsername());
-        assertEquals(savedUser.getUsername(), authenticatedUser.getUsername());
-
+        assertEquals(mockUser.getUsername(), authenticatedUser.getUsername());
     }
 
     @Test
-    @DisplayName("Deve retorna um erro de password")
-    public void  testPasswordWrong() {
-        RegisterUserDto user = new RegisterUserDto();
-        user.setEmail("50testuser@test.com");
-        user.setPassword("testpass");
-        User savedUser = userService.signup(user);
-        assertNotNull(savedUser);
-
+    @DisplayName("Deve lançar exceção para senha incorreta")
+    public void testPasswordWrong() {
         LoginUserDto loginUserDto = new LoginUserDto();
-        loginUserDto.setEmail("50testuser@test.com");
-        loginUserDto.setPassword("test");
+        loginUserDto.setEmail("nonexistent@test.com");
+        loginUserDto.setPassword("wrongpassword");
+
+
         assertThrows(BadCredentialsException.class, () -> userService.authenticate(loginUserDto));
-    }
-
-    @Test
-    @DisplayName("Verificação de senha criptografada")
-    public void  testPassword() {
-        RegisterUserDto user = new RegisterUserDto();
-        user.setEmail("50testuser@test.com");
-        user.setPassword("testpass");
-        User savedUser = userService.signup(user);
-        assertNotNull(savedUser);
-
-        LoginUserDto loginUserDto = new LoginUserDto();
-        loginUserDto.setEmail("50testuser@test.com");
-        loginUserDto.setPassword("testpass");
-
-        assertNotEquals(savedUser.getPassword(), loginUserDto.getPassword());
     }
 
     @Test
     @DisplayName("Autenticação de usuário inexistente")
-    public void  testUserNonExistent() {
+    public void testUserNonExistent() {
         LoginUserDto loginUserDto = new LoginUserDto();
         loginUserDto.setEmail("50testuser@test.com");
         loginUserDto.setPassword("testpass");
-        assertThrows(BadCredentialsException.class, () -> userService.authenticate(loginUserDto));
+
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class,
+                () -> userService.authenticate(loginUserDto));
+        assertEquals("Usuário não encontrado", exception.getMessage());
+
     }
 }

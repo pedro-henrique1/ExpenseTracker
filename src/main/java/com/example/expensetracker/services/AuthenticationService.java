@@ -9,6 +9,7 @@ import com.example.expensetracker.repositories.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,7 @@ public class AuthenticationService {
     public User authenticate(LoginUserDto input) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(input.getEmail(), input.getPassword()));
 
-        return userRepository.findByEmail(input.getEmail()).orElseThrow();
+        return userRepository.findByEmail(input.getEmail()).orElseThrow(() -> new BadCredentialsException("Usuário não encontrado"));
     }
 
 
