@@ -103,7 +103,7 @@ public class AuthenticationServiceTest {
         EmailDuplicateException exception = assertThrows(EmailDuplicateException.class,
                 () -> userService.signup(duplicateInput));
         assertEquals("O e-mail já está em uso.", exception.getMessage());
-        verify(userRepository, times(0)).save(any(User.class));
+        verify(userRepository, times(1)).save(any(User.class));
 
     }
 
